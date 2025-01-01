@@ -1,0 +1,19 @@
+[project]
+name = "countdown-tray"
+version = "0.1.0"
+description = "TODO"
+authors = [
+    {name = "Ethan Dawes", email = "ethand.python@gmail.com"},
+]
+dependencies = ["pystray>=0.19.5", "pillow>=11.0.0"]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "GPL-3.0-only"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
