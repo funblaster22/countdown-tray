@@ -1,4 +1,3 @@
-import random
 import time
 from PIL import Image, ImageDraw, ImageFont
 from pystray import Icon, MenuItem, Menu
@@ -9,7 +8,7 @@ import argparse
 
 
 class CountdownTray:
-    def __init__(self, due: datetime, repeat_rule: Optional[Iterable | timedelta]):
+    def __init__(self, due: datetime, repeat_rule: Optional[Iterable[datetime] | timedelta]):
         self.due = due
         self.running = True
         if isinstance(repeat_rule, Iterable):
@@ -55,33 +54,60 @@ class CountdownTray:
     def update_icon(self, _: Icon):
         """Update the icon with the new time remaining"""
         self.traylet.visible = True
-        while self.running:
-            random_number = random.randint(1, 10)
-            self.traylet.icon = self.create_icon(random_number)
-            time.sleep(1)
+        while True:
+            diff = self.due - datetime.now()
+            diff_seconds = diff.total_seconds()
+            diff_minutes = diff_seconds // 60
+            diff_hours = diff_minutes / 60
+            diff_days = diff_hours // 24
+            print(diff)
+
+            # Reached due date. Either exit or repeat
+            if diff_seconds <= 0:
+                if self.repeat_rule:
+                    self.due = next(self.repeat_rule)
+                    continue
+                else:
+                    self.exit_app()
+                    break
+
+            if diff_days > 0:
+                self.traylet.icon = self.create_icon(diff_days)
+                time.sleep(60 * 60 * 24)  # Sleep for a day
+            elif diff_hours > 10:
+                self.traylet.icon = self.create_icon(round(diff_hours))
+                time.sleep(60 * 60)  # Sleep for an hour
+            elif diff_hours > 1:
+                self.traylet.icon = self.create_icon(round(diff_hours, 1))
+                time.sleep(60 * 60 * 0.1)  # Sleep for 0.1 hours
+            else:
+                self.traylet.icon = self.create_icon(round(diff_hours, 1))
+                time.sleep(60)  # Sleep for 1 minute
 
     def exit_app(self):
         self.running = False
         self.traylet.stop()
 
 def parse_datetime(datetime_string: str):
+    if datetime_string.lower() == "now":
+        return datetime.now()
     try:
         # Parse like "1-5-2025 10:30 am"
-        return datetime.strptime(datetime_string, "%d-%m-%Y %I:%M %p")
+        return datetime.strptime(datetime_string, "%m-%d-%Y %I:%M %p")
     except ValueError:
         try:
             # Parse like "1-5-2025 19:30"
-            return datetime.strptime(datetime_string, "%d-%m-%Y %H:%M")
+            return datetime.strptime(datetime_string, "%m-%d-%Y %H:%M")
         except ValueError:
             # Parse like "1-5-2025"
-            return datetime.strptime(datetime_string, "%d-%m-%Y")
+            return datetime.strptime(datetime_string, "%m-%d-%Y")
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a system tray icon that counts down.")
     parser.add_argument(
         "ending_datetime",
         type=parse_datetime,
-        help="Datetime input in 'M-D-YYYY H:M (am/pm)' format."
+        help="Datetime input in 'M-D-YYYY H:M (am/pm)' format or 'now'."
     )
     parser.add_argument(
         "repeat_cron",
@@ -89,7 +115,7 @@ def parse_args():
         default=None,
         help="Optional cron repeat pattern (e.g., '*/5 * * * *')."
     )
-    return parser.parse_args(["1-6-2024 7:00 pm", "0 19 * * *"])
+    return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
