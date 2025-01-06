@@ -5,7 +5,7 @@ description = "TODO"
 authors = [
     {name = "Ethan Dawes", email = "ethand.python@gmail.com"},
 ]
-dependencies = ["pystray>=0.19.5", "pillow>=11.0.0"]
+dependencies = ["pystray>=0.19.5", "pillow>=11.0.0", "cronsim>=2.6"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "GPL-3.0-only"}
