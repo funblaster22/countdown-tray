@@ -117,9 +117,14 @@ def parse_args():
     )
     return parser.parse_args()
 
-if __name__ == "__main__":
+
+def main():
     args = parse_args()
     cron_iter: Optional[Iterable] = None
     if args.repeat_cron:
         cron_iter = CronSim(args.repeat_cron, args.ending_datetime)
-    t = CountdownTray(args.ending_datetime, cron_iter)
+    return CountdownTray(args.ending_datetime, cron_iter)
+
+
+if __name__ == "__main__":
+    main()
