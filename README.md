@@ -2,7 +2,7 @@
 
 Create a system tray icon that counts down to a specified date and time, optionally repeating.
 
-![countdown-tray](docs/demo.png)
+![countdown-tray](https://raw.githubusercontent.com/funblaster22/countdown-tray/refs/heads/main/docs/demo.png)
 
 In this example, it is counting down hours to 7pm. The unit will change depending on the time remaining.
 
