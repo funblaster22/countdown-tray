@@ -9,6 +9,18 @@ dependencies = ["pystray>=0.19.5", "pillow>=11.0.0", "cronsim>=2.6"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/funblaster22/countdown-tray"
+Issues = "https://github.com/funblaster22/countdown-tray/issues"
+
+[project.scripts]
+countdown-tray = "countdown_tray:main"
 
 [build-system]
 requires = ["pdm-backend"]
@@ -17,6 +29,3 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
-
-[project.scripts]
-countdown-tray = "countdown_tray:main"

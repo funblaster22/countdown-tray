@@ -3,12 +3,12 @@ from PIL import Image, ImageDraw, ImageFont
 from pystray import Icon, MenuItem, Menu
 from datetime import datetime, timedelta
 from cronsim import CronSim
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 import argparse
 
 
 class CountdownTray:
-    def __init__(self, due: datetime, repeat_rule: Optional[Iterable[datetime] | timedelta]):
+    def __init__(self, due: datetime, repeat_rule: Optional[Union[Iterable[datetime], timedelta]]):
         self.due = due
         self.running = True
         if isinstance(repeat_rule, Iterable):
