@@ -1,5 +1,7 @@
 # countdown-tray
 
+Download from [pyPI](https://pypi.org/project/countdown-tray/): `pip install countdown-tray`
+
 Create a system tray icon that counts down to a specified date and time, optionally repeating.
 
 ![countdown-tray](https://raw.githubusercontent.com/funblaster22/countdown-tray/refs/heads/main/docs/demo.png)

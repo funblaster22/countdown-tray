@@ -81,7 +81,7 @@ class CountdownTray:
                 self.traylet.icon = self.create_icon(round(diff_hours, 1))
                 time.sleep(60 * 60 * 0.1)  # Sleep for 0.1 hours
             else:
-                self.traylet.icon = self.create_icon(round(diff_hours, 1))
+                self.traylet.icon = self.create_icon(round(diff_minutes, 1))
                 time.sleep(60)  # Sleep for 1 minute
 
     def exit_app(self):
