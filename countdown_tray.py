@@ -1,4 +1,3 @@
-import time
 from PIL import Image, ImageDraw, ImageFont
 from pystray import Icon, MenuItem, Menu
 from datetime import datetime, timedelta
@@ -6,12 +5,13 @@ from cronsim import CronSim
 from typing import Iterable, Optional, Union
 import argparse
 import re
+import threading
 
 
 class CountdownTray:
     def __init__(self, due: datetime, repeat_rule: Optional[Union[Iterable[datetime], timedelta]]):
         self.due = due
-        self.running = True
+        self.stopped = threading.Event()
         if isinstance(repeat_rule, Iterable):
             self.repeat_rule = repeat_rule
         elif isinstance(repeat_rule, timedelta):
@@ -31,7 +31,7 @@ class CountdownTray:
             yield self.due + delta
     
     @staticmethod
-    def create_icon(number: float):
+    def create_icon(number: Union[float, int]):
         """create an icon with the provided number"""
         width, height = 64, 64  # Icon size
         image = Image.new('RGBA', (width, height), "white")
@@ -55,7 +55,7 @@ class CountdownTray:
     def update_icon(self, _: Icon):
         """Update the icon with the new time remaining"""
         self.traylet.visible = True
-        while True:
+        while not self.stopped.is_set():
             diff = self.due - datetime.now()
             diff_seconds = diff.total_seconds()
             diff_minutes = diff_seconds // 60
@@ -74,19 +74,19 @@ class CountdownTray:
 
             if diff_days > 0:
                 self.traylet.icon = self.create_icon(diff_days)
-                time.sleep(60 * 60 * 24)  # Sleep for a day
+                self.stopped.wait(timeout=60 * 60 * 24)  # Sleep for a day
             elif diff_hours > 10:
                 self.traylet.icon = self.create_icon(round(diff_hours))
-                time.sleep(60 * 60)  # Sleep for an hour
+                self.stopped.wait(timeout=60 * 60)  # Sleep for an hour
             elif diff_hours > 1:
                 self.traylet.icon = self.create_icon(round(diff_hours, 1))
-                time.sleep(60 * 60 * 0.1)  # Sleep for 0.1 hours
+                self.stopped.wait(timeout=60 * 60 * 0.1)  # Sleep for 0.1 hours
             else:
                 self.traylet.icon = self.create_icon(diff_minutes)
-                time.sleep(60)  # Sleep for 1 minute
+                self.stopped.wait(timeout=60)  # Sleep for 1 minute
 
     def exit_app(self):
-        self.running = False
+        self.stopped.set()
         self.traylet.stop()
 
 def parse_timedelta(time_str: str):
