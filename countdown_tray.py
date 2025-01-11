@@ -57,10 +57,10 @@ class CountdownTray:
         self.traylet.visible = True
         while not self.stopped.is_set():
             diff = self.due - datetime.now()
-            diff_seconds = diff.total_seconds()
+            diff_seconds = int(diff.total_seconds())
             diff_minutes = diff_seconds // 60
             diff_hours = diff_minutes / 60
-            diff_days = diff_hours // 24
+            diff_days = int(diff_hours // 24)
             print(diff)
 
             # Reached due date. Either exit or repeat
