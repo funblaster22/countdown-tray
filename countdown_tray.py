@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from cronsim import CronSim
 from typing import Iterable, Optional, Union
 import argparse
+import re
 
 
 class CountdownTray:
@@ -88,6 +89,22 @@ class CountdownTray:
         self.running = False
         self.traylet.stop()
 
+def parse_timedelta(time_str: str):
+    """Parses a string formatted as '?h?m' in either order or one"""
+    hours = 0
+    minutes = 0
+    minute_match = re.search(r"(\d+)m", time_str)
+    hour_match = re.search(r"(\d+)h", time_str)
+
+    if minute_match:
+        minutes = int(minute_match.group(1))
+    if hour_match:
+        hours = int(hour_match.group(1))
+    if not (hours or minutes):
+        raise ValueError("Invalid timedelta format. Must contain 'h' or 'm'.")
+
+    return timedelta(hours=hours, minutes=minutes)
+
 def parse_datetime(datetime_string: str):
     if datetime_string.lower() == "now":
         return datetime.now()
@@ -99,15 +116,19 @@ def parse_datetime(datetime_string: str):
             # Parse like "1-5-2025 19:30"
             return datetime.strptime(datetime_string, "%m-%d-%Y %H:%M")
         except ValueError:
-            # Parse like "1-5-2025"
-            return datetime.strptime(datetime_string, "%m-%d-%Y")
+            try:
+                # Parse like "1-5-2025"
+                return datetime.strptime(datetime_string, "%m-%d-%Y")
+            except ValueError:
+                # Parse like "?h?m" from now
+                return datetime.now() + parse_timedelta(datetime_string)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a system tray icon that counts down.")
     parser.add_argument(
         "ending_datetime",
         type=parse_datetime,
-        help="Datetime input in 'M-D-YYYY H:M (am/pm)' format or 'now'."
+        help="Datetime input in 'M-D-YYYY (H:M) (am/pm)' format, 'now', or '?h?m' from now."
     )
     parser.add_argument(
         "repeat_cron",
