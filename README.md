@@ -19,7 +19,7 @@ usage: countdown_tray.py [-h] ending_datetime [repeat_cron]
 Create a system tray icon that counts down.
 
 positional arguments:
-  ending_datetime  Datetime input in 'M-D-YYYY H:M (am/pm)' format or 'now'.
+  ending_datetime  Datetime input in 'M-D-YYYY (H:M) (am/pm)' format, 'now', or '?h?m' from now.
   repeat_cron      Optional cron repeat pattern (e.g., '*/5 * * * *').
 
 options:
