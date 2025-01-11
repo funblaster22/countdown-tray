@@ -12,6 +12,7 @@ class CountdownTray:
     def __init__(self, due: datetime, repeat_rule: Optional[Union[Iterable[datetime], timedelta]]):
         self.due = due
         self.stopped = threading.Event()
+        self.initial_diff = int((self.due - datetime.now()).total_seconds() // 60)
         if isinstance(repeat_rule, Iterable):
             self.repeat_rule = repeat_rule
         elif isinstance(repeat_rule, timedelta):
@@ -67,6 +68,7 @@ class CountdownTray:
             if diff_seconds <= 0:
                 if self.repeat_rule:
                     self.due = next(self.repeat_rule)
+                    self.initial_diff = int((self.due - datetime.now()).total_seconds() // 60)
                     continue
                 else:
                     self.exit_app()
@@ -78,6 +80,10 @@ class CountdownTray:
             elif diff_hours > 10:
                 self.traylet.icon = self.create_icon(round(diff_hours))
                 self.stopped.wait(timeout=60 * 60)  # Sleep for an hour
+            elif diff_minutes < 100 and self.initial_diff < 100:
+                # If timer started with less than 100 minutes, show minutes
+                self.traylet.icon = self.create_icon(diff_minutes)
+                self.stopped.wait(timeout=60)  # Sleep for 1 minute
             elif diff_hours > 1:
                 self.traylet.icon = self.create_icon(round(diff_hours, 1))
                 self.stopped.wait(timeout=60 * 60 * 0.1)  # Sleep for 0.1 hours

@@ -10,7 +10,8 @@ In this example, it is counting down hours to 7pm. The unit will change dependin
 
 - \> 1 day: days
 - \> 10 hour: hours rounded to whole hours
-- \> 1 hour: hours rounded to 0.5 hour
+- \< 100 minutes IF timer started with less than 100 minutes remaining: minutes
+- \> 1 hour: hours rounded to 0.1 hour
 - < 1 hour: minutes
 
 ```
