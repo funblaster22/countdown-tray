@@ -75,21 +75,19 @@ class CountdownTray:
                     break
 
             if diff_days > 0:
-                self.traylet.icon = self.create_icon(diff_days)
-                self.stopped.wait(timeout=60 * 60 * 24)  # Sleep for a day
-            elif diff_hours > 10:
-                self.traylet.icon = self.create_icon(round(diff_hours))
-                self.stopped.wait(timeout=60 * 60)  # Sleep for an hour
+                diff = diff_days
+            elif diff_hours > 9.9:
+                diff = int(round(diff_hours))
             elif diff_minutes < 100 and self.initial_diff < 100:
                 # If timer started with less than 100 minutes, show minutes
-                self.traylet.icon = self.create_icon(diff_minutes)
-                self.stopped.wait(timeout=60)  # Sleep for 1 minute
+                diff = diff_minutes
             elif diff_hours > 1:
-                self.traylet.icon = self.create_icon(round(diff_hours, 1))
-                self.stopped.wait(timeout=60 * 60 * 0.1)  # Sleep for 0.1 hours
+                diff = round(diff_hours, 1)
             else:
-                self.traylet.icon = self.create_icon(diff_minutes)
-                self.stopped.wait(timeout=60)  # Sleep for 1 minute
+                diff = diff_minutes
+
+            self.traylet.icon = self.create_icon(diff)
+            self.stopped.wait(timeout=60)  # Sleep for 1 minute
 
     def exit_app(self):
         self.stopped.set()
