@@ -1,6 +1,6 @@
 [project]
 name = "countdown-tray"
-version = "1.1.1"
+version = "2.0.0"
 description = "Create a system tray icon that counts down"
 authors = [
     {name = "Ethan Dawes", email = "ethand.python@gmail.com"},

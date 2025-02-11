@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from pystray import Icon, MenuItem, Menu
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 from cronsim import CronSim
 from typing import Iterable, Optional, Union
 import argparse
@@ -30,7 +30,7 @@ class CountdownTray:
         """Convert a timedelta to iterator that yields the next due time in constant increments"""
         while True:
             yield self.due + delta
-    
+
     @staticmethod
     def create_icon(number: Union[float, int]):
         """create an icon with the provided number"""
@@ -68,6 +68,7 @@ class CountdownTray:
             if diff_seconds <= 0:
                 if self.repeat_rule:
                     self.due = next(self.repeat_rule)
+                    print("next datetime:", self.due)
                     self.initial_diff = int((self.due - datetime.now()).total_seconds() // 60)
                     continue
                 else:
@@ -93,6 +94,7 @@ class CountdownTray:
         self.stopped.set()
         self.traylet.stop()
 
+
 def parse_timedelta(time_str: str):
     """Parses a string formatted as '?h?m' in either order or one"""
     hours = 0
@@ -109,30 +111,42 @@ def parse_timedelta(time_str: str):
 
     return timedelta(hours=hours, minutes=minutes)
 
-def parse_datetime(datetime_string: str):
-    if datetime_string.lower() == "now":
-        return datetime.now()
+
+def parse_date(date_string: str):
+    if date_string.lower() == "today":
+        return date.today()
+    return datetime.strptime(date_string, "%m-%d-%Y").date()
+
+
+def parse_time(time_string: str) -> Union[datetime, time]:
+    if time_string.lower() == "now":
+        return datetime.now().time()
     try:
-        # Parse like "1-5-2025 10:30 am"
-        return datetime.strptime(datetime_string, "%m-%d-%Y %I:%M %p")
+        # Parse like "10:30 am"
+        return datetime.strptime(time_string, "%I:%M%p").time()
     except ValueError:
         try:
-            # Parse like "1-5-2025 19:30"
-            return datetime.strptime(datetime_string, "%m-%d-%Y %H:%M")
+            # Parse like "19:30"
+            return datetime.strptime(time_string, "%H:%M").time()
         except ValueError:
-            try:
-                # Parse like "1-5-2025"
-                return datetime.strptime(datetime_string, "%m-%d-%Y")
-            except ValueError:
-                # Parse like "?h?m" from now
-                return datetime.now() + parse_timedelta(datetime_string)
+            # Parse like "?h?m" from now
+            # Must return datetime in case is next day
+            return datetime.now() + parse_timedelta(time_string)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a system tray icon that counts down.")
     parser.add_argument(
-        "ending_datetime",
-        type=parse_datetime,
-        help="Datetime input in 'M-D-YYYY (H:M) (am/pm)' format, 'now', or '?h?m' from now."
+        "ending_time",
+        type=parse_time,
+        help="Ending time in 'H:M(am/pm)' format, 'now', or '(?h)(?m)' from now. Parentheses denote optional."
+    )
+    parser.add_argument(
+        "ending_date",
+        type=parse_date,
+        nargs="?",
+        default='today',
+        help="Ending time in 'M-D-YYYY' format or 'today'. Defaults to 'today'. Ignored if using `?h?m` ending time."
     )
     parser.add_argument(
         "repeat_cron",
@@ -146,9 +160,13 @@ def parse_args():
 def main():
     args = parse_args()
     cron_iter: Optional[Iterable] = None
+    if isinstance(args.ending_time, datetime):
+        ending_datetime = args.ending_time
+    else:
+        ending_datetime = datetime.combine(args.ending_date, args.ending_time)
     if args.repeat_cron:
-        cron_iter = CronSim(args.repeat_cron, args.ending_datetime)
-    return CountdownTray(args.ending_datetime, cron_iter)
+        cron_iter = CronSim(args.repeat_cron, ending_datetime)
+    return CountdownTray(ending_datetime, cron_iter)
 
 
 if __name__ == "__main__":
