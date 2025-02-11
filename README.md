@@ -15,14 +15,15 @@ In this example, it is counting down hours to 7pm. The unit will change dependin
 - < 1 hour: minutes
 
 ```
-usage: countdown_tray.py [-h] ending_datetime [repeat_cron]
+usage: countdown_tray.py [-h] ending_time [ending_date] [repeat_cron]
 
 Create a system tray icon that counts down.
 
 positional arguments:
-  ending_datetime  Datetime input in 'M-D-YYYY (H:M) (am/pm)' format, 'now', or '?h?m' from now.
-  repeat_cron      Optional cron repeat pattern (e.g., '*/5 * * * *').
+  ending_time  Ending time in 'H:M(am/pm)' format, 'now', or '(?h)(?m)' from now. Parentheses denote optional.
+  ending_date  Ending time in 'M-D-YYYY' format or 'today'. Defaults to 'today'. Ignored if using `?h?m` ending time.
+  repeat_cron  Optional cron repeat pattern (e.g., '*/5 * * * *').
 
 options:
-  -h, --help       show this help message and exit
+  -h, --help   show this help message and exit
 ```
